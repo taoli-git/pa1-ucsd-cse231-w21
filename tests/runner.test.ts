@@ -13,6 +13,18 @@ const importObject = {
       importObject.output += "\n";
       return arg;
     },
+    abs: (arg : number) => {
+      return Math.abs(arg);
+    },
+    max: (arg1 : number, arg2 : number) => {
+      return Math.max(arg1, arg2);
+    },
+    min: (arg1 : number, arg2 : number) => {
+      return Math.min(arg1, arg2);
+    },
+    pow: (arg1 : number, arg2 : number) => {
+      return Math.pow(arg1, arg2);
+    }
   },
 
   output: ""

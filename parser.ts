@@ -9,6 +9,19 @@ export function traverseExpr(c : TreeCursor, s : string) : Expr {
         tag: "num",
         value: Number(s.substring(c.from, c.to))
       }
+    case "UnaryExpression": // handle negative number
+      c.firstChild(); // go to sign
+      const sign = s.substring(c.from, c.to);
+      if (sign != "-") {
+        throw new Error("Unsupported unaryExpresssion");
+      }
+      c.nextSibling();
+      const num = Number(s.substring(c.from, c.to));
+      c.parent();
+      return {
+        tag: "num",
+        value: -num
+      }
     case "VariableName":
       return {
         tag: "id",
@@ -17,18 +30,59 @@ export function traverseExpr(c : TreeCursor, s : string) : Expr {
     case "CallExpression":
       c.firstChild();
       const callName = s.substring(c.from, c.to);
-      c.nextSibling(); // go to arglist
-      c.firstChild(); // go into arglist
-      c.nextSibling(); // find single argument in arglist
-      const arg = traverseExpr(c, s);
-      c.parent(); // pop arglist
-      c.parent(); // pop CallExpression
-      return {
-        tag: "builtin1",
-        name: callName,
-        arg: arg
-      };
+      switch(callName){
+        case "print":
+        case "abs":
+          c.nextSibling(); // go to arglist
+          c.firstChild(); // go into arglist
+          c.nextSibling(); // find single argument in arglist
+          const arg = traverseExpr(c, s);
+          c.parent(); // pop arglist
+          c.parent(); // pop CallExpression
 
+          return {
+            tag: "builtin1",
+            name: callName,
+            arg: arg
+          };
+        case "max":
+        case "min":
+        case "pow":
+          c.nextSibling(); // go to arglist
+          c.firstChild(); // go into arglist
+          c.nextSibling(); // find single argument in arglist
+          const arg1 = traverseExpr(c, s);
+          c.nextSibling(); // skip comma
+          c.nextSibling();
+          const arg2 = traverseExpr(c, s);
+          c.parent(); // pop arglist
+          c.parent(); // pop CallExpression
+
+          return {
+            tag: "builtin2",
+            name: callName,
+            arg1: arg1,
+            arg2: arg2
+          };
+        default:
+          throw new Error("Unsupported function type");
+      }
+    case "BinaryExpression":
+      c.firstChild();
+      const arg1 = traverseExpr(c, s);
+
+      c.nextSibling();
+      const opr = s.substring(c.from, c.to);
+    
+      c.nextSibling();
+      const arg2 = traverseExpr(c, s);
+      c.parent();
+      return {
+        tag: "op",
+        name: opr,
+        arg1: arg1,
+        arg2: arg2
+      };
     default:
       throw new Error("Could not parse expr at " + c.from + " " + c.to + ": " + s.substring(c.from, c.to));
   }

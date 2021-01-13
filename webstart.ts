@@ -12,6 +12,22 @@ function webStart() {
           elt.innerText = arg;
           return arg;
         },
+        abs: (arg : number) => {
+          console.log("Executing abs from WASM: ", arg);
+          return Math.abs(arg);
+        },
+        max: (arg1 : number, arg2 : number) => {
+          console.log("Executing max from WASM: ", arg1, arg2);
+          return Math.max(arg1, arg2);
+        },
+        min: (arg1 : number, arg2 : number) => {
+          console.log("Executing min from WASM: ", arg1, arg2);
+          return Math.min(arg1, arg2);
+        },
+        pow: (arg1 : number, arg2 : number) => {
+          console.log("Executing pow from WASM: ", arg1, arg2);
+          return Math.pow(arg1, arg2);
+        }
       },
     };
 

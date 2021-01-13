@@ -46,9 +46,26 @@ function codeGen(stmt: Stmt) : Array<string> {
 
 function codeGenExpr(expr : Expr) : Array<string> {
   switch(expr.tag) {
+    case "op":
+      const argExpr1 = codeGenExpr(expr.arg1).join();
+      const argExpr2 = codeGenExpr(expr.arg2).join();
+      switch(expr.name){
+        case "+":
+          return ["(i32.add " + argExpr1 + " " + argExpr2 + ")"];
+        case "-":
+          return ["(i32.sub " + argExpr1 + " " + argExpr2 + ")"];
+        case "*":
+          return ["(i32.mul " + argExpr1 + " " + argExpr2 + ")"];
+        default:
+          throw new Error("Invalid BinaryOperator");
+      }
     case "builtin1":
       const argStmts = codeGenExpr(expr.arg);
       return argStmts.concat([`(call $${expr.name})`]);
+    case "builtin2":
+      const arg1 = codeGenExpr(expr.arg1).join();
+      const arg2 = codeGenExpr(expr.arg2).join();
+      return [`(call $${expr.name}` + arg1 + ` ` + arg2 + `)`];
     case "num":
       return ["(i32.const " + expr.value + ")"];
     case "id":
